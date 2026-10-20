@@ -14,6 +14,7 @@ The current implementation is compatible with the Immich v3 album API.
 ## Features
 
 - DLNA discovery over SSDP (LG TV-compatible behavior)
+- Accurate Timeline and Albums container child counts for Samsung DLNA clients
 - Streaming proxy for photos/videos (with HTTP Range support for video seeking)
 - Thumbnail proxy for image previews
 - Shared albums + partner timeline support

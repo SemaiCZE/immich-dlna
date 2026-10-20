@@ -150,6 +150,7 @@ This section defines the **minimum “compatibility surface”** we guarantee fo
 
 For **containers** (`<container>`):
 - attributes: `id`, `parentID`, `restricted="1"`
+- `childCount` reports the current number of Timeline assets or child albums; album folders use Immich's asset count. Metadata falls back to zero if Immich is unavailable.
 - elements: `dc:title`, `upnp:class` = `object.container.storageFolder`
 
 For **items** (`<item>`):

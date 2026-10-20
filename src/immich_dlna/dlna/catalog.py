@@ -49,9 +49,12 @@ class ContentCatalog:
             else:
                 all_entries = await self._browse_children(object_id, sort_criteria=sort_criteria)
         except ImmichError as error:
-            if object_id in {ROOT_ID, TIMELINE_ID, ALBUMS_ID} or object_id.startswith("album:"):
+            if (
+                object_id in {ROOT_ID, TIMELINE_ID, ALBUMS_ID, "1", "2"}
+                or object_id.startswith("album:")
+            ):
                 self.logger.error("Immich browse fallback object_id=%s error=%s", object_id, error)
-                all_entries = self._empty_fallback_for(object_id)
+                all_entries = self._fallback_for(object_id, browse_flag)
             else:
                 raise
 
@@ -67,9 +70,19 @@ class ContentCatalog:
         if object_id == ROOT_ID:
             return ROOT_CONTAINER
         if object_id == TIMELINE_ID:
-            return TIMELINE_CONTAINER
+            return Container(
+                object_id=TIMELINE_CONTAINER.object_id,
+                parent_id=TIMELINE_CONTAINER.parent_id,
+                title=TIMELINE_CONTAINER.title,
+                child_count=len(await self.immich_client.list_timeline_asset_refs()),
+            )
         if object_id == ALBUMS_ID:
-            return ALBUMS_CONTAINER
+            return Container(
+                object_id=ALBUMS_CONTAINER.object_id,
+                parent_id=ALBUMS_CONTAINER.parent_id,
+                title=ALBUMS_CONTAINER.title,
+                child_count=len(await self.immich_client.list_albums()),
+            )
 
         album_id = parse_album_id(object_id)
         if album_id is not None:
@@ -163,7 +176,12 @@ class ContentCatalog:
         )
 
     @staticmethod
-    def _empty_fallback_for(object_id: str) -> list[BrowseEntry]:
+    def _fallback_for(object_id: str, browse_flag: str) -> list[BrowseEntry]:
+        if browse_flag == "BrowseMetadata":
+            if object_id in {TIMELINE_ID, "1"}:
+                return [TIMELINE_CONTAINER]
+            if object_id in {ALBUMS_ID, "2"}:
+                return [ALBUMS_CONTAINER]
         if object_id == ROOT_ID:
             return [TIMELINE_CONTAINER, ALBUMS_CONTAINER]
         return []
